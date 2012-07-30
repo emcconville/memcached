@@ -72,7 +72,6 @@
 #define POWER_SMALLEST 1
 #define POWER_LARGEST  200
 #define CHUNK_ALIGN_BYTES 8
-#define DONT_PREALLOC_SLABS
 #define MAX_NUMBER_OF_SLAB_CLASSES (POWER_LARGEST + 1)
 
 /** How long an object can reasonably be assumed to be locked before
@@ -301,7 +300,7 @@ struct settings {
     bool sasl;              /* SASL on/off */
     bool maxconns_fast;     /* Whether or not to early close connections */
     bool slab_reassign;     /* Whether or not slab reassignment is allowed */
-    bool slab_automove;     /* Whether or not to automatically move slabs */
+    int slab_automove;     /* Whether or not to automatically move slabs */
     int hashpower_init;     /* Starting hash power level */
 };
 

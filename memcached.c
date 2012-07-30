@@ -224,7 +224,7 @@ static void settings_init(void) {
     settings.maxconns_fast = false;
     settings.hashpower_init = 0;
     settings.slab_reassign = false;
-    settings.slab_automove = false;
+    settings.slab_automove = 0;
 }
 
 /*
@@ -1197,8 +1197,8 @@ static void process_bin_touch(conn *c) {
     protocol_binary_response_get* rsp = (protocol_binary_response_get*)c->wbuf;
     char* key = binary_get_key(c);
     size_t nkey = c->binary_header.request.keylen;
-    protocol_binary_request_touch *t = (void *)&c->binary_header;
-    uint32_t exptime = ntohl(t->message.body.expiration);
+    protocol_binary_request_touch *t = binary_get_request(c);
+    time_t exptime = ntohl(t->message.body.expiration);
 
     if (settings.verbose > 1) {
         int ii;
@@ -2624,7 +2624,7 @@ static void process_stat_settings(ADD_STAT add_stats, void *c) {
     APPEND_STAT("maxconns_fast", "%s", settings.maxconns_fast ? "yes" : "no");
     APPEND_STAT("hashpower_init", "%d", settings.hashpower_init);
     APPEND_STAT("slab_reassign", "%s", settings.slab_reassign ? "yes" : "no");
-    APPEND_STAT("slab_automove", "%s", settings.slab_automove ? "yes" : "no");
+    APPEND_STAT("slab_automove", "%d", settings.slab_automove);
 }
 
 static void process_stat(conn *c, token_t *tokens, const size_t ntokens) {
@@ -3206,9 +3206,9 @@ static void process_slabs_automove_command(conn *c, token_t *tokens, const size_
 
     level = strtoul(tokens[2].value, NULL, 10);
     if (level == 0) {
-        settings.slab_automove = false;
-    } else if (level == 1) {
-        settings.slab_automove = true;
+        settings.slab_automove = 0;
+    } else if (level == 1 || level == 2) {
+        settings.slab_automove = level;
     } else {
         out_string(c, "ERROR");
         return;
@@ -3361,12 +3361,6 @@ static void process_command(conn *c, char *command) {
                 break;
             case REASSIGN_NOSPARE:
                 out_string(c, "NOSPARE source class has no spare pages");
-                break;
-            case REASSIGN_DEST_NOT_FULL:
-                out_string(c, "NOTFULL dest class has spare memory");
-                break;
-            case REASSIGN_SRC_NOT_SAFE:
-                out_string(c, "UNSAFE src class is in an unsafe state");
                 break;
             case REASSIGN_SRC_DST_SAME:
                 out_string(c, "SAME src and dst class are identical");
@@ -4676,7 +4670,7 @@ static int enable_large_pages(void) {
 
     return ret;
 #else
-    return 0;
+    return -1;
 #endif
 }
 
@@ -4897,6 +4891,10 @@ int main (int argc, char **argv) {
         case 'L' :
             if (enable_large_pages() == 0) {
                 preallocate = true;
+            } else {
+                fprintf(stderr, "Cannot enable large pages on this system\n"
+                    "(There is no Linux support as of this version)\n");
+                return 1;
             }
             break;
         case 'C' :
@@ -4986,7 +4984,15 @@ int main (int argc, char **argv) {
                 settings.slab_reassign = true;
                 break;
             case SLAB_AUTOMOVE:
-                settings.slab_automove = true;
+                if (subopts_value == NULL) {
+                    settings.slab_automove = 1;
+                    break;
+                }
+                settings.slab_automove = atoi(subopts_value);
+                if (settings.slab_automove < 0 || settings.slab_automove > 2) {
+                    fprintf(stderr, "slab_automove must be between 0 and 2\n");
+                    return 1;
+                }
                 break;
             default:
                 printf("Illegal suboption \"%s\"\n", subopts_value);
