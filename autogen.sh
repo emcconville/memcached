@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Get the initial version.
-perl version.pl
+perl version.pl 2> /dev/null
 
 ACLOCAL_MIN_VERSION="1.9.0"
 AUTOMAKE_MIN_VERSION="1.9.0"
@@ -55,23 +55,23 @@ check_version() {
 	min_version_major="`echo $min_version | cut -d. -f1`"
 	min_version_minor="`echo $min_version | cut -d. -f2`"
 	min_version_patch="`echo $min_version | cut -d. -f3`"
-	if test "x$current_version_major" = "x"; then current_version_major=0 ; fi
-	if test "x$current_version_minor" = "x"; then current_version_minor=0 ; fi
-	if test "x$current_version_patch" = "x"; then current_version_patch=0 ; fi
-	if test "x$min_version_major" = "x"; then min_version_major=0 ; fi
-	if test "x$min_version_minor" = "x"; then min_version_minor=0 ; fi
-	if test "x$min_version_patch" = "x"; then min_version_patch=0 ; fi
+	if test x$current_version_major = x; then current_version_major=0 ; fi
+	if test x$current_version_minor = x; then current_version_minor=0 ; fi
+	if test x$current_version_patch = x; then current_version_patch=0 ; fi
+	if test x$min_version_major = x; then min_version_major=0 ; fi
+	if test x$min_version_minor = x; then min_version_minor=0 ; fi
+	if test x$min_version_patch = x; then min_version_patch=0 ; fi
 	
 	
-	if [ $_min_major -lt $_cur_major ] ; then
+	if [ $min_version_major -lt $current_version_major ] ; then
 		VERSION_OK="true"
-    elif [ $_min_major -eq $_cur_major ] ; then
-	  if [ $_min_minor -lt $_cur_minor ] ; then
+    elif [ $min_version_major -eq $current_version_major ] ; then
+	  if [ $min_version_minor -lt $current_version_minor ] ; then
 	    VERSION_OK="true"
-	  elif [ $_min_minor -eq $_cur_minor ] ; then
-	    if [ $_min_patch -lt $_cur_patch ] ; then
+	  elif [ $min_version_minor -eq $current_version_minor ] ; then
+	    if [ $min_version_patch -lt $current_version_patch ] ; then
 		VERSION_OK="true"
-	    elif [ $_min_patch -eq $_cur_patch ] ; then
+	    elif [ $min_version_patch -eq $current_version_patch ] ; then
 		VERSION_OK="true"
 	    fi
 	  fi
