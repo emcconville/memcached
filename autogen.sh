@@ -126,10 +126,10 @@ for arg in $ARGS ; do
 	case "x$arg" in
 		x--help) HELP=yes ;;
 		x-[hH]) HELP=yes ;;
-		x--with-aclocal=*) ACLOCAL="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
-		x--with-autoheader=*) AUTOHEADER="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
-		x--with-automake=*) AUTOMAKE="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
-		x--with-autoconf=*) AUTOCONF="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
+		x--with-aclocal=*) ACLOCAL="`echo $arg | sed 's/.*=\(.*\)/\1/'`" ;;
+		x--with-autoheader=*) AUTOHEADER="`echo $arg | sed 's/.*=\(.*\)/\1/'`" ;;
+		x--with-automake=*) AUTOMAKE="`echo $arg | sed 's/.*=\(.*\)/\1/'`" ;;
+		x--with-autoconf=*) AUTOCONF="`echo $arg | sed 's/.*=\(.*\)/\1/'`" ;;
 		*) die "Unknown option: $arg, try $0 --help" ;;
 	esac
 done
