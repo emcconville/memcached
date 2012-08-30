@@ -6,6 +6,23 @@ perl version.pl 2> /dev/null
 ACLOCAL_MIN_VERSION="1.9.0"
 AUTOMAKE_MIN_VERSION="1.9.0"
 
+# Configure echo parameters
+case `echo "same\c"; echo " old"`,`echo -n same; echo " old"` in
+  *c*,-n*)
+    ECHO_N=""
+    ECHO_C='
+'
+    ;;
+  *c*)
+    ECHO_N="-n"
+    ECHO_C=""
+    ;;
+  *)
+    ECHO_N=""
+    ECHO_C="\c"
+    ;;
+esac
+
 die() {
     echo "$@"
     exit 1
@@ -16,11 +33,11 @@ die() {
 locate_legacy_binary() {
   for f in $@
   do
-    file=`which $f 2>/dev/null | grep -v '^no '`
-    if test -n "$file" -a -x "$file"; then
-      echo $file
-      return 0
-    fi
+	  file=`identify_default_binary $f`
+	  if [ $? -eq 0 ]; then
+			echo $file
+			return 0
+		fi
   done
   echo ""
   return 1
@@ -87,7 +104,7 @@ check_version() {
     return $VERSION_ERROR;
 }
 
-echo "aclocal......\c"
+echo $ECHO_N "aclocal......$ECHO_C"
 if test x$ACLOCAL = x; then
   ACLOCAL=`identify_default_binary aclocal`
   if [ $? -ne 0 ]; then
@@ -106,13 +123,13 @@ fi
 $ACLOCAL || exit 1
 echo "OK"
 
-echo "autoheader...\c"
+echo $ECHO_N "autoheader...$ECHO_C"
 AUTOHEADER=${AUTOHEADER:-autoheader}
 $AUTOHEADER || exit 1
 echo "OK" 
 
 
-echo "automake.....\c"
+echo $ECHO_N "automake.....$ECHO_C"
 if test x$AUTOMAKE = x; then
   AUTOMAKE=`identify_default_binary automake`
   if [ $? -ne 0 ]; then
@@ -132,7 +149,7 @@ $AUTOMAKE --foreign --add-missing || $AUTOMAKE --gnu --add-missing || exit 1
 echo "OK"
 
 
-echo "autoconf.....\c"
+echo $ECHO_N "autoconf.....$ECHO_C"
 AUTOCONF=${AUTOCONF:-autoconf}
 $AUTOCONF || exit 1
 echo "OK"
