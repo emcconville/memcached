@@ -28,6 +28,24 @@ die() {
     exit 1
 }
 
+usage() {
+	echo "Usage: $AUTOGEN_SCRIPT [-h|--help] [--with-aclocal=<path>] [--with-autoheader=<path>]"
+	echo "                       [--with-automake=<path>][--with-autoconf=<path>]"
+	echo
+	echo "    --help                   Help on $AUTOGEN_NAME usage"
+	echo "    --with-aclocal=<path>    Define binary location for aclocal"
+	echo "    --with-autoheader=<path> Define binary location for autoheader"
+	echo "    --with-automake=<path>   Define binary location for automake"
+	echo "    --with-autoconf=<path>   Define binary location for autoconf"
+	echo
+	echo "ACLOCAL, AUTOHEADER, AUTOMAKE, AUTOCONF environment variables"
+	echo "and corresponding --with-BINARY variables may be used to override "
+	echo "the default automatic detection behavior."
+	echo
+	
+	exit 0
+}
+
 # Try to locate a program by using which, and verify that the file is an
 # executable
 locate_legacy_binary() {
@@ -99,6 +117,26 @@ check_version() {
   fi
     return $VERSION_ERROR;
 }
+
+ARGS="$*"
+AUTOGEN_PATH="`dirname $0`"
+AUTOGEN_NAME="`basename $0`"
+AUTOGEN_SCRIPT="$AUTOGEN_PATH/$AUTOGEN_NAME"
+for arg in $ARGS ; do
+	case "x$arg" in
+		x--help) HELP=yes ;;
+		x-[hH]) HELP=yes ;;
+		x--with-aclocal=*) ACLOCAL="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
+		x--with-autoheader=*) AUTOHEADER="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
+		x--with-automake=*) AUTOMAKE="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
+		x--with-autoconf=*) AUTOCONF="`echo $arg | sed 's/.*=\(.*\)'/\1/`" ;;
+		*) die "Unknown option: $arg, try $0 --help" ;;
+	esac
+done
+
+if test x$HELP = xyes ; then
+	usage
+fi
 
 echo $ECHO_N "aclocal......$ECHO_C"
 if test x$ACLOCAL = x; then
