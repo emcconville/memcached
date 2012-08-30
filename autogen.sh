@@ -33,13 +33,12 @@ die() {
 locate_legacy_binary() {
   for f in $@
   do
-	  file=`identify_default_binary $f`
+	  file="`identify_default_binary $f`"
 	  if [ $? -eq 0 ]; then
 			echo $file
 			return 0
 		fi
   done
-  echo ""
   return 1
 }
 
@@ -50,30 +49,27 @@ identify_default_binary() {
     echo $file
     return 0
   fi
-  echo ""
   return 1
 }
 
 # Assume GNU version is last word on first line
 # Format version. ie. '1.10-p8' => '1.10.8'
 identify_version() {
-	echo `$1 --version | head -n 1 | awk '{print $NF}' | sed 's/[^0-9]/./g' | sed 's/\.\././g'`
-	return 0
+  echo `$1 --version | head -n 1 | awk '{print $NF}' | sed 's/[^0-9]/./g' | sed 's/\.\././g'`
+  return 0
 }
 
 # Compare program version to min version
 check_version() {
 	VERSION_ERROR=1
 	if test x$1 = x; then
-		echo "Unable to resolve version number"
-		exit 1
+		die "Unable to resolve version number"
 	fi
-    current_version=$1
+  current_version=$1
 	if test x$2 = x; then
-		echo "Unable to evaluate version numbers...missing \$min_version"
-		exit 1
+		die "Unable to evaluate version numbers...missing \$min_version"
 	fi
-    min_version=$2
+  min_version=$2
 	
 	current_version_major="`echo $current_version | cut -d. -f1`"
 	current_version_minor="`echo $current_version | cut -d. -f2`"
@@ -100,21 +96,21 @@ check_version() {
 			VERSION_ERROR=0
 	    fi
 	  fi
-    fi
+  fi
     return $VERSION_ERROR;
 }
 
 echo $ECHO_N "aclocal......$ECHO_C"
 if test x$ACLOCAL = x; then
-  ACLOCAL=`identify_default_binary aclocal`
+  ACLOCAL="`identify_default_binary aclocal`"
   if [ $? -ne 0 ]; then
     die "Did not find a supported aclocal"
   else
 	VERSION=`identify_version $ACLOCAL`
 	check_version $VERSION $ACLOCAL_MIN_VERSION
 	if [ $? -ne 0 ]; then
-		ACLOCAL=`locate_legacy_binary aclocal-1.7 aclocal17 aclocal-1.5 aclocal15`
-		if test x$ACLOCAL = x; then
+		ACLOCAL="`locate_legacy_binary aclocal-1.7 aclocal17 aclocal-1.5 aclocal15`"
+		if [ $? -ne 0]; then
 			die "Did not find a supported aclocal"
 		fi
 	fi
@@ -131,15 +127,15 @@ echo "OK"
 
 echo $ECHO_N "automake.....$ECHO_C"
 if test x$AUTOMAKE = x; then
-  AUTOMAKE=`identify_default_binary automake`
+  AUTOMAKE="`identify_default_binary automake`"
   if [ $? -ne 0 ]; then
     die "Did not find a supported automake"
   else
 	VERSION=`identify_version $AUTOMAKE`
 	check_version $VERSION $AUTOMAKE_MIN_VERSION
 	if [ $? -ne 0 ]; then
-		AUTOMAKE=`locate_legacy_binary automake-1.7`
-		if test x$AUTOMAKE = x; then
+		AUTOMAKE="`locate_legacy_binary automake-1.7`"
+		if [ $? -ne 0 ]; then
 		    die "Did not find a supported automake"
 		fi
 	fi
