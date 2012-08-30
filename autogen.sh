@@ -148,7 +148,7 @@ if test x$ACLOCAL = x; then
 	check_version $VERSION $ACLOCAL_MIN_VERSION
 	if [ $? -ne 0 ]; then
 		ACLOCAL="`locate_legacy_binary aclocal-1.7 aclocal17 aclocal-1.5 aclocal15`"
-		if [ $? -ne 0]; then
+		if [ $? -ne 0 ]; then
 			die "Did not find a supported aclocal"
 		fi
 	fi
